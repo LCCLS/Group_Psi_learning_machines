@@ -77,13 +77,13 @@ class Robot:
     @staticmethod
     def process_sensor_input(sensor_value):
         if not sensor_value:
-            return 0
+            return '0'
         normalized = (sensor_value - 0.14) / 0.14
         if normalized < 0.25:
-            return 1
+            return '1'
         elif normalized < 0.75:
-            return 2
-        return 3
+            return '2'
+        return '3'
 
 
     @staticmethod
@@ -92,8 +92,9 @@ class Robot:
 
     def get_current_state_index(self) -> int:
         sensor_values = Robot.input_processing(np.array(self.rob.read_irs()))
-        # TODO: do that
-        return 42
+        base_val = ''.join(sensor_values)
+        state_idx = int(base_val, 4)
+        return state_idx
 
     def _update_state_value(self, state_idx: int, next_state_idx: int, action_idx: int, reward: int) -> None:
         old_value = self.q_matrix((state_idx, action_idx))
