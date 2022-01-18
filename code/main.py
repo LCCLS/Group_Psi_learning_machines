@@ -74,23 +74,24 @@ class Robot:
         reward = -5
         return reward
 
-    def _input_processing(self, sensor_data):
-        sensors = []
-        for i in range(len(sensor_data)):
-            if not sensor_data[i]:
-                sensors.append(0)
-            else:
-                normalised_i = (sensor_data[i] - 0.14) / 0.14
-                if 0 < normalised_i < 0.25:
-                    sensors.append(1)
-                elif 0 < normalised_i < 0.75:
-                    sensors.append(2)
-                else:
-                    sensors.append(3)
-        return sensors
+    @staticmethod
+    def process_sensor_input(sensor_value):
+        if not sensor_value:
+            return 0
+        normalized = (sensor_value - 0.14) / 0.14
+        if normalized < 0.25:
+            return 1
+        elif normalized < 0.75:
+            return 2
+        return 3
+
+
+    @staticmethod
+    def input_processing(sensor_data):
+        return [Robot.process_sensor_input(x) for x in sensor_data]
 
     def get_current_state_index(self) -> int:
-        sensor_values = self._input_processing(np.array(self.rob.read_irs()))
+        sensor_values = Robot.input_processing(np.array(self.rob.read_irs()))
         # TODO: do that
         return 42
 
