@@ -51,8 +51,8 @@ def main():
         else:
             rob.move(20, 20, 1000)
 
-        rob.pause_simulation()
-        rob.stop_world()
+    rob.pause_simulation()
+    rob.stop_world()
 
 
 if __name__ == "__main__":
