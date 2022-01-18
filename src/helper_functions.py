@@ -18,12 +18,22 @@ def input_processing(sensor_data):
     pass
 
 
-for i in range(50):
-    # print("ROB Irs: {}".format(np.log(np.array(rob.read_irs())) / 10))
+starting_pos = [-3.4506836128234863, 0.9749576449394226, 0.03710094094276428]
+stop = False
+
+while not stop:
+
+    if rob.position() == starting_pos:
+        stop = True
+
     sensor_values = input_processing(np.array(rob.read_irs()))
-    if any(sensor_values):
-        rob.move(0, 0, 1000)
-        rob.move(10, 0, 1000)
-        rob.move(10, 10, 1000)
+    front_sensors = sensor_values[3:]
+
+    if any(front_sensors):
+        rob.move(10, -10, 1000)
+
     else:
-        rob.move(10, 10, 1000)
+        rob.move(20, 20, 1000)
+
+
+
