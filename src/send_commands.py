@@ -18,7 +18,7 @@ def terminate_program(signal_number, frame):
 def main():
     signal.signal(signal.SIGINT, terminate_program)
 
-    # rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.1.7")
+    #rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.1.7")
     rob = robobo.SimulationRobobo().connect(address='192.168.1.6', port=19997)
 
     rob.play_simulation()
