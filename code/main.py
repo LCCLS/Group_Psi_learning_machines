@@ -53,7 +53,7 @@ class Robot:
         if FLAGS.simulated:
             self.rob = robobo.SimulationRobobo().connect(address='127.0.0.1', port=19997)
         else:
-            self.rob = robobo.HardwareRobobo(camera=True).connect(address="10.15.3.150")
+            self.rob = robobo.HardwareRobobo(camera=True).connect(address="192.168.154.175")
 
         self.rob.play_simulation()
 
@@ -113,17 +113,23 @@ class Robot:
         #reward -= sensor_values[2]
         return reward
 
-    @staticmethod
-    def process_sensor_input(sensor_value):
-        if not sensor_value:
+    def process_sensor_input(self, sensor_value):
+        if FLAGS.simulated:
+            if not sensor_value:
+                return '0'
+            normalized = sensor_value / 0.2
+            if normalized < 0.5:
+                return '2'
+            return '1'
+        # Real world
+        if sensor_value < 10:
             return '0'
-        normalized = sensor_value / 0.2
-        if normalized < 0.5:
-            return '2'
-        return '1'
+        if sensor_value < 50:
+            return '1'
+        return '2'
 
     def get_sensor_values(self):
-        return [Robot.process_sensor_input(x) for x in self.rob.read_irs()[3:]]
+        return [self.process_sensor_input(x) for x in self.rob.read_irs()[3:]]
 
     def get_current_state_index(self) -> int:
         sensor_values = self.get_sensor_values()
