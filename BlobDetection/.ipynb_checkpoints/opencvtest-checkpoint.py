@@ -9,8 +9,6 @@ params = cv2.SimpleBlobDetector_Params()
 params.minThreshold = 10
 params.maxThreshold = 200
 
-params.blobColor = False
-
 # Read image
 im = cv2.imread("test_pictures_0.png", cv2.IMREAD_COLOR)
 print(im)
