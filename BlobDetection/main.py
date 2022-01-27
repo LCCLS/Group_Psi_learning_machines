@@ -6,7 +6,7 @@ from Robot import Robot
 
 def main():
     # Print chosen options
-    robobo = Robot(simulated=True)
+    robobo = Robot(simulated=False)
     robobo.run()
 
 

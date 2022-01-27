@@ -78,7 +78,6 @@ class Robot:
             action_index = np.argmax(self._q_matrix[current_state_index])
             next_action = Actions(action_index)
             self._do_action(action=next_action)
-            time.sleep(1)
 
     def train(self, iterations: int = 10000):
         print("Started training...")
