@@ -34,14 +34,14 @@ actions_movement_mapping = {
 }
 
 LEARNING_RATE = 0.9
-DISCOUNT_FACTOR = 0.98
+DISCOUNT_FACTOR = 0.7
 
 AMOUNT_IMAGE_SPLITS = 5
 AMOUNT_ACTIONS = 3
 
 EPS_START = 0.9
 EPS_END = 0.05
-EPS_DECAY = 6000
+EPS_DECAY = 7000
 
 PHONE_TILT = 0.5
 
@@ -53,7 +53,7 @@ class Robot:
         if simulated:
             self._rob = robobo.SimulationRobobo().connect(address=address, port=19997)
             self._rob.play_simulation()
-            self._rob.set_phone_tilt(PHONE_TILT, 0.4)
+            self._rob.set_phone_tilt(PHONE_TILT, 100)
         else:
             self._rob = robobo.HardwareRobobo(camera=True).connect(address=address)
             self._rob.set_phone_tilt(PHONE_TILT, 100)
@@ -67,18 +67,20 @@ class Robot:
 
     def run(self):
         # Load Q-Matrix
-        self._q_matrix = np.load('matrices/q_matrix_new_5000.npy')
-        self._q_matrix[0][1] = 1
+        self._q_matrix = np.load('matrices/q_matrix_new_final.npy')
         i = 0
         while True:
-            print(i)
+            #print(i)
             i += 1
             current_state_index = self._get_current_state_index()
-            time.sleep(1)
+            #time.sleep(1)
+            print(f"State: {current_state_index}")
             action_index = np.argmax(self._q_matrix[current_state_index])
             next_action = Actions(action_index)
+            print(f"Action: {next_action}")
             self._do_action(action=next_action)
-            time.sleep(1)
+            print("----------------------")
+            #time.sleep(1)
 
     def train(self, iterations: int = 10000):
         print("Started training...")
@@ -89,10 +91,7 @@ class Robot:
             count += 1
             # See how much food was collected before movement
             collected_food_before = self._collected_food
-            #eps_threshold = EPS_END + (EPS_START - EPS_END) * math.exp(-1. * i / EPS_DECAY)
-            eps_threshold = 1
-            if i > 3000:
-                eps_threshold = 0.2
+            eps_threshold = EPS_END + (EPS_START - EPS_END) * math.exp(-1. * i / EPS_DECAY)
             if random.random() < eps_threshold:
                 next_action = random.choice(list(Actions))
                 action_index = next_action.value
@@ -116,7 +115,7 @@ class Robot:
             if i % 1000 == 0:
                 np.save(f"matrices/q_matrix_new_{i}.npy", self._q_matrix)
             # Reset if all food is collected
-            if self._collected_food == 7 or count % 1000 == 0:  #
+            if self._collected_food == 14 or count % 1000 == 0:  #
                 count = 0
                 self._collected_food = 0
                 self._rob.stop_world()
@@ -158,7 +157,7 @@ class Robot:
             if result:
                 print("GREEN | ", end='')
             else:
-                print("     | ", end='')
+                print("_____ | ", end='')
         print("")
         # Convert to string and transform base two to base ten for state index
         base_two_val = ''.join([str(int(x)) for x in detection_results])

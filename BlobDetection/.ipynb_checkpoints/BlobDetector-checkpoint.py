@@ -27,7 +27,7 @@ class BlobDetector:
             #image_part = append_white_column_left_and_right(image_part)
             #image_part = append_white_row_top_and_bottom(image_part)
             mask = cv2.inRange(image_part, LOWER_GREEN, UPPER_GREEN)
-            has_green = has_green = np.count_nonzero(mask) > 50
+            has_green = np.any(mask)
             detected.append(has_green)
             keypoints = BlobDetector.detector.detect(image_part)
             # detected.append(len(keypoints) > 0)
