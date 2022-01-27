@@ -20,11 +20,12 @@ class BlobDetector:
         in which a blob is detected"""
         # Append white column to left and right for equal split
         image = append_white_column_left_and_right(image)
+        #image = append_white_column_left_and_right(image)
         splitted_image = np.hsplit(image, 5)
         detected = []
         for image_part in splitted_image:
-            image_part = append_white_column_left_and_right(image_part)
-            image_part = append_white_row_top_and_bottom(image_part)
+            #image_part = append_white_column_left_and_right(image_part)
+            #image_part = append_white_row_top_and_bottom(image_part)
             mask = cv2.inRange(image_part, LOWER_GREEN, UPPER_GREEN)
             has_green = np.any(mask)
             detected.append(has_green)
