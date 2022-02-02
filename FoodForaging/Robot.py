@@ -44,14 +44,13 @@ class Robot:
         # while True:
         #     self._do_action(action=Actions.STRAIGHT)
         #     time.sleep(1)
-        self._food_q_matrix = np.load('food_matrices/q_matrix_new_6000.npy')
+        self._food_q_matrix = np.load('food_matrices/q_matrix_temp.npy')
         #self._goal_q_matrix = np.load('goal_matrices/goal_q_matrix_final.npy')
 
         # Collect food first
         task = Task.COLLECT_FOOD
         q_matrix_in_use = self._food_q_matrix
-        q_matrix_in_use[0][2] = 1
-        q_matrix_in_use[2][2] = 10
+        print(q_matrix_in_use)
         while True:
             current_state_index = self._get_current_state_index(task)
             print(f"State: {current_state_index}")
@@ -59,10 +58,10 @@ class Robot:
             next_action = Actions(action_index)
             print(f"Action: {next_action}")
             self._do_action(action=next_action)
-            if self._collected_food():
+            #if self._collected_food():
                 # Next move food to goal
-                q_matrix_in_use = self._goal_q_matrix
-                task = Task.REACH_GOAL
+            #    q_matrix_in_use = self._goal_q_matrix
+            #    task = Task.REACH_GOAL
 
     def train(self, task: Task, iterations: int = 10000):
         print("Started training...")
