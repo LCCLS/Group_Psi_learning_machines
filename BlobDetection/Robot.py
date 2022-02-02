@@ -3,6 +3,7 @@ import random
 import time
 from dataclasses import dataclass
 from enum import Enum
+import csv
 
 import numpy as np
 
@@ -21,27 +22,29 @@ class Actions(Enum):
     STRAIGHT = 0
     LEFT = 1
     RIGHT = 2
-    # STRONG_LEFT = 3
-    # STRONG_RIGHT = 4
+    STRONG_LEFT = 3
+    STRONG_RIGHT = 4
+    BACK = 5
 
 
 actions_movement_mapping = {
     Actions.STRAIGHT: Movement(15, 15, 1000),
     Actions.LEFT: Movement(-10, 10, 1000),
     Actions.RIGHT: Movement(10, -10, 1000),
-    # Actions.STRONG_LEFT: Movement(-10, 10, 1000),
-    # Actions.STRONG_RIGHT: Movement(10, -10, 1000)
+    Actions.STRONG_LEFT: Movement(-15, 15, 1000),
+    Actions.STRONG_RIGHT: Movement(15, -15, 1000),
+    Actions.BACK: Movement(15, 15, 1000)
 }
 
 LEARNING_RATE = 0.8
 DISCOUNT_FACTOR = 0.95
 
-AMOUNT_IMAGE_SPLITS = 5
-AMOUNT_ACTIONS = 3
+AMOUNT_IMAGE_SPLITS = 3
+AMOUNT_ACTIONS = 6
 
 EPS_START = 0.9
 EPS_END = 0.05
-EPS_DECAY = 3000
+EPS_DECAY = 6000
 
 PHONE_TILT = 0.5
 
@@ -59,12 +62,12 @@ class Robot:
 
         self._q_matrix = np.zeros((2 ** AMOUNT_IMAGE_SPLITS, AMOUNT_ACTIONS))
         # Load Q-Matrix
-        # self.q_matrix = np.load('q_matrix.npy')
+        # self.q_matrix = np.load('q_matrix_10_50.npy')
         self._collected_food = 0
 
     def run(self):
         # Load Q-Matrix
-        self._q_matrix = np.load('matrices/q_matrix_new_7000.npy')
+        self._q_matrix = np.load('matrices/q_matrix_strongMoves_9000.npy')
         i = 0
         while True:
             print(i)
@@ -74,9 +77,12 @@ class Robot:
             self._do_action(action=next_action)
 
     def train(self, iterations: int = 10000):
-        self._q_matrix = np.load('matrices/q_matrix_new_3000.npy')
+        #self._q_matrix = np.load('matrices/q_matrix_new_3000.npy')
         current_state_index = self._get_current_state_index()
         count = 0
+        reward_inter = 0
+        file = open('rewards_back.csv', 'w')
+        writer = csv.writer(file)
         for i in range(iterations):
             count += 1
             # See how much food was collected before movement
@@ -95,20 +101,19 @@ class Robot:
             # Update food
             self._collected_food = self._rob.collected_food()
             reward = self._calculate_reward(collected_food_before)
-            if next_action == Actions.RIGHT:
-                reward += 3
-            if next_action == Actions.STRAIGHT:
-                reward += 2
+            reward_inter = reward_inter + reward
             next_state_index = self._get_current_state_index()
             self._update_state_value(state_idx=current_state_index, next_state_idx=next_state_index,
                                      action_idx=action_index,
                                      reward=reward)
             current_state_index = next_state_index
             if i % 1000 == 0:
-                np.save(f"matrices/q_matrix_new_{i}.npy", self._q_matrix)
+                np.save(f"matrices/q_matrix_backMove_{i}.npy", self._q_matrix)
             # Reset if all food is collected
             if self._collected_food == 7:  # or count % 500 == 0
                 count = 0
+                writer.writerow(str(reward_inter))
+                reward_inter = 0
                 self._collected_food = 0
                 self._rob.stop_world()
                 print("Waiting for stop")

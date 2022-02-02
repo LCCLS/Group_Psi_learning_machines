@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 import random
 import sys
+import csv
 
 from flags import FLAGS
 
@@ -59,12 +60,14 @@ class Robot:
 
         #self.q_matrix = np.zeros((AMOUNT_SENSOR_STATES ** AMOUNT_SENSORS, AMOUNT_ACTIONS))
         # Load Q-Matrix
-        self.q_matrix = np.load('q_matrix.npy')
+        self.q_matrix = np.load('q_matrix_10_50.npy')
 
     def move_straight(self):
         self.rob.move(20, 20, 5000)
 
     def learn(self, iterations: int = 10000):
+        rewards_learning = []
+        rewards500 = 0
         for i in range(iterations):
             current_state = self.get_current_state_index()
             action_index = np.argmax(self.q_matrix[current_state])
@@ -82,6 +85,7 @@ class Robot:
             self.do_action(action=next_action)
             if FLAGS.train:
                 reward = self.calculate_reward()
+                rewards500 = rewards500 + reward
                 if next_action != Actions.STRAIGHT:
                     reward -= 1
                 else:
@@ -90,13 +94,20 @@ class Robot:
                 next_state = self.get_current_state_index()
                 self._update_state_value(state_idx=current_state, next_state_idx=next_state, action_idx=action_index,
                                          reward=reward)
+            if i%500 == 0:
+                rewards_learning.append(rewards500)
+                rewards500 = 0
         # Save Q-Matrix after learning
         if FLAGS.train:
-            np.save('q_matrix.npy', self.q_matrix)
+            np.save('q_matrix_20_80.npy', self.q_matrix)
         if FLAGS.simulated:
             self.rob.pause_simulation()
             self.rob.stop_world()
         print("Run finished!")
+        print(rewards_learning)
+        file = open('rewards_20_80.csv', 'w')
+        writer = csv.writer(file)
+        writer.writerow(rewards_learning)
 
     def do_action(self, action: Actions):
         movement = actions_movement_mapping[action]
@@ -122,9 +133,9 @@ class Robot:
                 return '2'
             return '1'
         # Real world
-        if sensor_value < 10:
+        if sensor_value < 20:
             return '0'
-        if sensor_value < 50:
+        if sensor_value < 80:
             return '1'
         return '2'
 

@@ -7,7 +7,8 @@ from Robot import Robot
 def main():
     # Print chosen options
     robobo = Robot(simulated=True)
-    robobo.train()
+    #robobo.train()
+    robobo.run()
 
 
 if __name__ == "__main__":

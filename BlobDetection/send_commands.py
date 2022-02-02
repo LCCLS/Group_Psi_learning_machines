@@ -20,12 +20,8 @@ def main():
     rob.play_simulation()
 
     rob.set_phone_tilt(0.4, 100)
-    rob.move(10, 10, 2000)
+    rob.move(-14, 141233, 2000)
 
-    for i in range(10):
-        time.sleep(2)
-        image = rob.get_image_front()
-        cv2.imwrite(f"test_pictures_{i}.png",image)
 
 
 

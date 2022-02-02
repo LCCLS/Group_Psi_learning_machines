@@ -20,7 +20,8 @@ class BlobDetector:
         in which a blob is detected"""
         # Append white column to left and right for equal split
         image = append_white_column_left_and_right(image)
-        splitted_image = np.hsplit(image, 5)
+        image = append_white_column_left_and_right(image)
+        splitted_image = np.hsplit(image, 3)
         detected = []
         for image_part in splitted_image:
             image_part = append_white_column_left_and_right(image_part)
