@@ -20,7 +20,7 @@ EPS_START = 0.9
 EPS_END = 0.05
 EPS_DECAY = 7000
 
-PHONE_TILT = 0.5
+PHONE_TILT = 0.65
 
 SENSOR_SENSITIVITY = 0.035
 
@@ -41,27 +41,30 @@ class Robot:
         self._goal_q_matrix = np.full((2 ** AMOUNT_IMAGE_SPLITS, AMOUNT_ACTIONS), 0)
 
     def run(self):
-        # while True:
-        #     self._do_action(action=Actions.STRAIGHT)
-        #     time.sleep(1)
-        self._food_q_matrix = np.load('food_matrices/q_matrix_temp.npy')
-        #self._goal_q_matrix = np.load('goal_matrices/goal_q_matrix_final.npy')
-
-        # Collect food first
-        task = Task.COLLECT_FOOD
-        q_matrix_in_use = self._food_q_matrix
-        print(q_matrix_in_use)
         while True:
-            current_state_index = self._get_current_state_index(task)
-            print(f"State: {current_state_index}")
-            action_index = np.argmax(q_matrix_in_use[current_state_index])
-            next_action = Actions(action_index)
-            print(f"Action: {next_action}")
-            self._do_action(action=next_action)
-            #if self._collected_food():
-                # Next move food to goal
-            #    q_matrix_in_use = self._goal_q_matrix
-            #    task = Task.REACH_GOAL
+            sensor_values = self._rob.read_irs()
+            center_value = sensor_values[5]
+            print(f"Center Value: {center_value}")
+            print("----------------\n")
+            time.sleep(1)
+        # self._food_q_matrix = np.load('food_matrices/q_matrix_new_8000.npy')
+        # #self._goal_q_matrix = np.load('goal_matrices/goal_q_matrix_final.npy')
+        #
+        # # Collect food first
+        # task = Task.COLLECT_FOOD
+        # q_matrix_in_use = self._food_q_matrix
+        # print(q_matrix_in_use)
+        # while True:
+        #     current_state_index = self._get_current_state_index(task)
+        #     print(f"State: {current_state_index}")
+        #     action_index = np.argmax(q_matrix_in_use[current_state_index])
+        #     next_action = Actions(action_index)
+        #     print(f"Action: {next_action}")
+        #     self._do_action(action=next_action)
+        #     if self._collected_food():
+        #         #Next move food to goal
+        #         q_matrix_in_use = self._food_q_matrix
+        #         task = Task.REACH_GOAL
 
     def train(self, task: Task, iterations: int = 10000):
         print("Started training...")
@@ -127,7 +130,7 @@ class Robot:
         old_value = self._q_matrix[state_idx][action_idx]
         next_q_value = np.amax(self._q_matrix[next_state_idx], axis=0)
 
-        updated_value = old_value + LEARNING_RATE * (reward + DISCOUNT_FACTOR * next_q_value - old_value)
+        updated_value = (1-LEARNING_RATE)*old_value + LEARNING_RATE * (reward + DISCOUNT_FACTOR * next_q_value)
         self._q_matrix[state_idx, action_idx] = updated_value
 
     def _calculate_reward(self, task: Task) -> int:
@@ -162,7 +165,7 @@ class Robot:
         # Append if colecting food
         if task == Task.COLLECT_FOOD:
             center_sensor_value = self._rob.read_irs()[5]
-            if center_sensor_value and center_sensor_value < 0.07:
+            if center_sensor_value and center_sensor_value < 0.09:
                 prefix = '1'
                 print(" ACTIVE ", end='')
             else:

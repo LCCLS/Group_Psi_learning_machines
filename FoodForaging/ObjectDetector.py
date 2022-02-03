@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 from util import Task
 from flags import FLAGS
 
-LOWER_RED_HSV = np.array([45, 50, 50], dtype = "uint8")
-UPPER_RED_HSV = np.array([65, 255, 255], dtype = "uint8")
+LOWER_RED_HSV = np.array([0, 50, 50], dtype = "uint8")
+UPPER_RED_HSV = np.array([15, 255, 255], dtype = "uint8")
 
 LOWER_GREEN_HSV = np.array([36, 50, 50], dtype = "uint8")
 UPPER_GREEN_HSV = np.array([86, 255, 255], dtype = "uint8")
@@ -25,10 +25,10 @@ class ObjectDetector:
         # Append white column to left and right for equal split
         image = append_white_column_left_and_right(image)
         image = append_white_column_left_and_right(image)
-        cv2.imwrite("red_food.png", image)
+        #cv2.imwrite("red_food.png", image)
         #image = image[:,:,::-1]
-        #plt.imshow(image)
-        #plt.show()
+        plt.imshow(image)
+        plt.show()
         #image = append_white_column_left_and_right(image)
         splitted_image = np.hsplit(image, 3)
         detected = []
@@ -36,12 +36,12 @@ class ObjectDetector:
             #image_part = append_white_column_left_and_right(image_part)
             #image_part = append_white_row_top_and_bottom(image_part)
             hsv = cv2.cvtColor(image_part, cv2.COLOR_BGR2HSV)
-            #plt.imshow(image_part)
-            #plt.show()
+            plt.imshow(image_part)
+            plt.show()
             if task == Task.COLLECT_FOOD:
-                mask = cv2.inRange(image_part, LOWER_RED_HSV, UPPER_RED_HSV)
+                mask = cv2.inRange(hsv, LOWER_RED_HSV, UPPER_RED_HSV)
             else:
-                mask = cv2.inRange(image_part, LOWER_GREEN_HSV, UPPER_GREEN_HSV)
+                mask = cv2.inRange(hsv, LOWER_GREEN_HSV, UPPER_GREEN_HSV)
             count = np.count_nonzero(mask)
             has_color = np.count_nonzero(mask) > 50
             detected.append(has_color)
